@@ -6,17 +6,17 @@ A Neovim plugin to help compile and upload arduino programs to Arduino boards us
 ## Requirements
 
 - Neovim 0.7.0+
-- (optional) [telescope.nvim][telescope.nvim] 
+- (optional) [telescope.nvim](https://github.com/nvim-telescope/telescope.nvim)
 
 ## Install
 
-Using [vim-plug][vim-plug]:
+Using [vim-plug](https://github.com/junegunn/vim-plug):
 
 ```vim
 Plug "vlelo/arduino-helper.nvim" }
 ```
 
-Using [packer.nvim][packer]:
+Using [packer.nvim](https://github.com/wbthomason/packer.nvim):
 
 ```lua
 use { "vlelo/arduino-helper.nvim" }
