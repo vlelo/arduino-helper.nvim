@@ -36,8 +36,8 @@ require("arduino-helper").setup{
 
 When calling the `setup` function, the following options are available:
 
-|      option      |      default value     |      
-| -----------------| ---------------------- |
-| cli_command      | "arduino-cli"          |
-| keep_nil_device  | true                   |
-| ui               | "native"               |
+|      option        |      default value       |      explanation
+| -------------------| ------------------------ | ---------
+| `cli_command`      | `"arduino-cli"`          | The command to execute as arduino-cli, useful when the executable is not in the PATH
+| `keep_nil_device`  | `true`                   | If `false`, arduino-helper will filter out devices wich don't report fqbn
+| `ui`               | `"native"`               | What frontend to use for letting user choose devices or fqbns. Available options are:<br /><ul><li>`"native"`, which uses `vim.ui.select()`</li><li>`"telescope"`</li></ul>
