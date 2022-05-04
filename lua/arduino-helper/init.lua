@@ -4,19 +4,21 @@ local opts = require("arduino-helper.opts")
 local plugin_opts = {
 	cli_command = {
 		name = "cli_command",
-		value = "arduino-cli",
+		value = nil,
+		default = "arduino-cli",
 		type = "string",
 		values = nil,
 	},
-	keep_nil_device = {
-		name = "keep_nil_device",
-		value = false,
-		type = "boolean",
-		values = nil,
-	},
+	-- keep_nil_device = {
+	-- 	name = "keep_nil_device",
+	-- 	value = false,
+	-- 	type = "boolean",
+	-- 	values = nil,
+	-- },
 	ui = {
 		name = "ui",
-		value = "native",
+		value = nil,
+		default = "native",
 		type = "string",
 		values = {
 			"native",
@@ -75,6 +77,10 @@ function M.setup(setopts)
 			vim.api.nvim_buf_create_user_command(0, "ArduinoCompile", M.compile, command_opts)
 		end,
 	})
+end
+
+function M.print_opts()
+	print(vim.inspect(plugin_opts))
 end
 
 return M
