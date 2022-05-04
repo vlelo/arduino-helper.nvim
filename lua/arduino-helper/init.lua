@@ -1,5 +1,6 @@
-local utils = require("arduino-helper.utils")
+local devices = require("arduino-helper.devices")
 local opts = require("arduino-helper.opts")
+local utils = require("arduino-helper.utils")
 
 local plugin_opts = {
 	cli_command = {
@@ -9,12 +10,13 @@ local plugin_opts = {
 		type = "string",
 		values = nil,
 	},
-	-- keep_nil_device = {
-	-- 	name = "keep_nil_device",
-	-- 	value = false,
-	-- 	type = "boolean",
-	-- 	values = nil,
-	-- },
+	keep_nil_device = {
+		name = "keep_nil_device",
+		value = nil,
+		default = true,
+		type = "boolean",
+		values = nil,
+	},
 	ui = {
 		name = "ui",
 		value = nil,
@@ -30,30 +32,59 @@ local plugin_opts = {
 local M = {}
 
 local function upload(lopts)
+	local command = "upload"
 	return function(attr)
-		if (attr and attr.bang) or (not vim.b.arduino_helper_port and not vim.b.arduino_helper_fqbn) then
-			if utils.select_device(lopts.cli_command.value, lopts.keep_nil_device.value, lopts.ui.value, "upload") == 1 then
-				return 1
+		local device_stats = utils.bga()
+
+		if (attr and attr.bang) or not device_stats.port or not device_stats.fqbn then
+			if not device_stats.port then
+				if devices.select_device(lopts.cli_command.value, lopts.keep_nil_device.value, lopts.ui.value, command) == 1 then
+					return 1 -- error
+				end
+				return require("arduino-helper")[command]()
+			else
+				vim.notify("No device detected on the port", vim.log.levels.INFO)
+				if devices.select_fqbn(lopts.cli_command.value, lopts.ui.value, command) == 1 then
+					return 1 -- error
+				end
 			end
 		end
 
-		if vim.b.arduino_helper_port and vim.b.arduino_helper_fqbn then
-			vim.cmd("!" .. lopts.cli_command.value .. " upload --port " .. vim.b.arduino_helper_port .. " --fqbn " .. vim.b.arduino_helper_fqbn .. " %")
+		if device_stats.port and device_stats.fqbn then
+			-- strip spaces from end of port string
+			device_stats.port = string.gsub(device_stats.port, "%s*$", "")
+			vim.cmd("!" .. lopts.cli_command.value .. " upload --port " .. device_stats.port .. " --fqbn " .. device_stats.fqbn .. " %")
 		end
+
+		return 2 -- no operation done
 	end
 end
 
 local function compile(lopts)
+	local command = "compile"
 	return function(attr)
-		if (attr and attr.bang) or not vim.b.arduino_helper_fqbn then
-			if utils.select_device(lopts.cli_command.value, lopts.keep_nil_device.value, lopts.ui.value, "compile") == 1 then
-				return 1
+		local device_stats = utils.bga()
+
+		if (attr and attr.bang) or not device_stats.fqbn then
+			if not device_stats.port then
+				if devices.select_device(lopts.cli_command.value, lopts.keep_nil_device.value, lopts.ui.value, command) == 1 then
+					return 1 -- error
+				end
+				return require("arduino-helper")[command]()
+			else
+				vim.notify("No device detected on the port", vim.log.levels.INFO)
+				if devices.select_fqbn(lopts.cli_command.value, lopts.ui.value, command) == 1 then
+					return 1 -- error
+				end
 			end
 		end
 
-		if vim.b.arduino_helper_fqbn then
-			vim.cmd("!" .. lopts.cli_command.value .. " compile --fqbn " .. vim.b.arduino_helper_fqbn .. " %")
+		if device_stats.fqbn then
+			vim.cmd("!" .. lopts.cli_command.value .. " compile --fqbn " .. device_stats.fqbn .. " %")
+			return 0 -- success
 		end
+
+		return 2 -- no operation done
 	end
 end
 
@@ -73,6 +104,7 @@ function M.setup(setopts)
 		pattern = "arduino",
 		desc = "Create arduino-helper local commads when enterino .ino buffer",
 		callback = function()
+			utils.bsa({})
 			vim.api.nvim_buf_create_user_command(0, "ArduinoUpload", M.upload, command_opts)
 			vim.api.nvim_buf_create_user_command(0, "ArduinoCompile", M.compile, command_opts)
 		end,
