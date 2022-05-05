@@ -24,7 +24,7 @@ use { "vlelo/arduino-helper.nvim" }
 
 ## Setup
 
-For most users, default configs with *Telescope* support will be satisfying:
+For most users, default configs with **Telescope** support will be satisfying:
 
 ```lua
 require("arduino-helper").setup{
@@ -50,3 +50,12 @@ The plugin provides two commands, which are local to `.ino` buffers:
 | ------------------ | --------------------------------------|
 | `:ArduinoCompile`  | `require("arduino-helper").compile()` |
 | `:ArduinoUpload`   | `require("arduino-helper").upload()`  |
+
+`arduino-helper` will save the Arduino port/fqbn to upload/compile to in a buffer variable
+and will not prompt the user to select them after the first time. **bang** alternatives of
+the commands are provided to force the prompt to appear:
+
+|     vimscript       |         lua                                          |
+| ------------------- | ---------------------------------------------------- |
+| `:ArduinoCompile!`  | `require("arduino-helper").compile({ bang = true })` |
+| `:ArduinoUpload!`   | `require("arduino-helper").upload({ bang = true })`  |
